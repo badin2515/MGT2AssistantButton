@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../Assembly-CSharp"
+		},
+		{
+			"path": "../../Mad.Games.Tycoon.2.v2024.04.10A"
+		},
+		{
+			"path": "../MGT2QoL/MGT2QoL"
+		}
+	],
+	"settings": {}
+}

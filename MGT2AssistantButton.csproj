@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net46</TargetFramework>
+    <AssemblyName>MGT2AssistantButton</AssemblyName>
+    <Description>Assistant Button Mod for Mad Games Tycoon 2</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="2019.4.40" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>lib\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>lib\UnityEngine.UI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>lib\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ButtonIcon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <PropertyGroup>
+      <GameDir>..\..\Mad.Games.Tycoon.2.v2024.04.10A</GameDir>
+      <BepInExPlugins>$(GameDir)\BepInEx\plugins</BepInExPlugins>
+      <ModFolder>$(BepInExPlugins)\MGT2AssistantButton</ModFolder>
+      <ModDataFolder>$(ModFolder)\Data</ModDataFolder>
+    </PropertyGroup>
+    <Message Text="Copying $(TargetFileName) to BepInEx plugins folder..." Importance="high" />
+    
+    <!-- Create mod directory structure -->
+    <MakeDir Directories="$(ModFolder)" Condition="!Exists('$(ModFolder)')" />
+    <MakeDir Directories="$(ModDataFolder)" Condition="!Exists('$(ModDataFolder)')" />
+    
+    <!-- Copy DLL to mod folder -->
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModFolder)" />
+    
+    <!-- Copy icon file -->
+    <Copy SourceFiles="$(ProjectDir)ButtonIcon.png" DestinationFolder="$(ModFolder)" />
+    
+    <!-- Copy Data files -->
+    <Copy SourceFiles="$(ProjectDir)Data\GameNames.json" DestinationFolder="$(ModDataFolder)" />
+    
+    <Message Text="Successfully copied to $(ModFolder)" Importance="high" />
+  </Target>
+
+</Project>
