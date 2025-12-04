@@ -63,7 +63,13 @@ namespace MGT2AssistantButton.Core
         public static void ApplyBestLanguage()
         {
             Plugin.Logger.LogInfo("Core: Applying Best Language...");
-            // TODO: Implement language selection
+            Handlers.LanguageHandler.ApplyBestLanguage(_currentMenu);
+        }
+
+        public static void ApplyLanguageMode(LanguageMode mode)
+        {
+            Plugin.Logger.LogInfo($"Core: Applying Language Mode: {mode}");
+            Handlers.LanguageHandler.ApplyLanguageMode(_currentMenu, mode);
         }
 
         public static void ApplyOptimalSliders()

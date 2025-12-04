@@ -139,7 +139,20 @@ namespace MGT2AssistantButton.UI
 
             if (randomNameSource != null)
             {
-                languageButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_Language", new Vector2(200f, -112f), "Language", OnLanguageButtonClick);
+                // Language button with dropdown - don't set onClick directly
+                languageButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_Language", new Vector2(200f, -112f), "Language", null);
+                
+                // Add dropdown menu to language button
+                if (languageButton != null)
+                {
+                    var button = languageButton.GetComponent<Button>();
+                    if (button != null)
+                    {
+                        LanguageDropdownMenu.Create(button, (mode) => {
+                            MGT2AssistantButton.Core.AssistantCore.ApplyLanguageMode(mode);
+                        });
+                    }
+                }
             }
 
             GameObject alleSprachen = FindButtonByName(menu, "Button_AlleSprachen");
