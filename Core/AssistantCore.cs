@@ -60,6 +60,12 @@ namespace MGT2AssistantButton.Core
             Handlers.EngineHandler.ApplyBestEngineFeatures(_currentMenu);
         }
 
+        public static void ApplyEngineFeatureMode(EngineFeatureMode mode)
+        {
+            Plugin.Logger.LogInfo($"Core: Applying Engine Feature Mode: {mode}");
+            Handlers.EngineHandler.ApplyEngineFeatures(_currentMenu, mode);
+        }
+
         public static void ApplyBestLanguage()
         {
             Plugin.Logger.LogInfo("Core: Applying Best Language...");

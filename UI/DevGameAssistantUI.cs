@@ -133,7 +133,21 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage3Buttons(GameObject descSource, GameObject randomNameSource, Transform parent, Menu_DevGame menu)
         {
-            engineFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_EngineFeature", new Vector2(300f, 133f), OnEngineFeatureButtonClick);
+            // Engine Feature button with dropdown - don't set onClick directly
+            engineFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_EngineFeature", new Vector2(300f, 133f), null);
+            
+            // Add dropdown menu to engine feature button
+            if (engineFeatureButton != null)
+            {
+                var button = engineFeatureButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    EngineFeatureDropdownMenu.Create(button, (mode) => {
+                        MGT2AssistantButton.Core.AssistantCore.ApplyEngineFeatureMode(mode);
+                    });
+                }
+            }
+            
             antiCheatButton = CreateDescButton(descSource, parent, "Button_Assist_AntiCheat", new Vector2(-320f, -203f), OnAntiCheatButtonClick);
             copyProtectButton = CreateDescButton(descSource, parent, "Button_Assist_CopyProtect", new Vector2(300f, -205f), OnCopyProtectButtonClick);
 

@@ -138,8 +138,163 @@ namespace MGT2AssistantButton.Core.Handlers
 
         public static void ApplyBestEngineFeatures(Menu_DevGame menu)
         {
-            Plugin.Logger.LogInfo("Core: Applying Best Engine Features...");
-            // TODO: Implement engine features selection
+            ApplyEngineFeatures(menu, EngineFeatureMode.Best);
+        }
+
+        /// <summary>
+        /// Apply engine features based on selected mode
+        /// Both modes select features at max tech level supported by platform.
+        /// Best: picks most expensive feature at that tech level
+        /// Cheapest: picks least expensive feature at that tech level
+        /// </summary>
+        public static void ApplyEngineFeatures(Menu_DevGame menu, EngineFeatureMode mode)
+        {
+            if (menu == null)
+            {
+                Plugin.Logger.LogError("Menu instance is null!");
+                return;
+            }
+
+            if (menu.g_GameEngineScript_ == null)
+            {
+                Plugin.Logger.LogWarning("No engine selected - cannot apply engine features");
+                return;
+            }
+
+            try
+            {
+                string modeName = mode == EngineFeatureMode.Best ? "Best (Expensive)" : "Cheapest";
+                Plugin.Logger.LogInfo($"=== Applying Engine Features: {modeName} Mode ===");
+
+                // Get mainScript and engineFeatures
+                GameObject mainObj = GameObject.Find("Main");
+                if (mainObj == null)
+                {
+                    Plugin.Logger.LogError("Main GameObject not found!");
+                    return;
+                }
+
+                engineFeatures eF = mainObj.GetComponent<engineFeatures>();
+                if (eF == null)
+                {
+                    Plugin.Logger.LogError("engineFeatures component not found!");
+                    return;
+                }
+
+                // Find minimum platform tech level (same as game's logic)
+                int minPlatformTech = 99;
+                for (int i = 0; i < menu.g_GamePlatform.Length; i++)
+                {
+                    if (menu.g_GamePlatform[i] != -1)
+                    {
+                        int platformTech = GetPlatformTechLevel(menu.g_GamePlatform[i]);
+                        if (platformTech < minPlatformTech)
+                            minPlatformTech = platformTech;
+                    }
+                }
+
+                Plugin.Logger.LogInfo($"Max supported Tech Level: {minPlatformTech}");
+
+                // For each feature type (0=Grafik, 1=Sound, 2=KI, 3=Physik)
+                for (int featureType = 0; featureType < menu.g_GameEngineFeature.Length; featureType++)
+                {
+                    // Step 1: Find the max tech level available for this feature type
+                    int maxTechForType = -1;
+                    for (int featureIdx = 0; featureIdx < menu.g_GameEngineScript_.features.Length; featureIdx++)
+                    {
+                        if (!menu.g_GameEngineScript_.features[featureIdx])
+                            continue;
+                        if (eF.engineFeatures_TYP[featureIdx] != featureType)
+                            continue;
+                        if (eF.engineFeatures_TECH[featureIdx] > minPlatformTech)
+                            continue;
+
+                        int techLevel = eF.engineFeatures_TECH[featureIdx];
+                        if (techLevel > maxTechForType)
+                            maxTechForType = techLevel;
+                    }
+
+                    if (maxTechForType < 0)
+                        continue; // No features available for this type
+
+                    // Step 2: Find best/cheapest feature at that max tech level
+                    int bestFeatureIndex = -1;
+                    int bestDevCost = mode == EngineFeatureMode.Best ? -1 : int.MaxValue;
+
+                    for (int featureIdx = 0; featureIdx < menu.g_GameEngineScript_.features.Length; featureIdx++)
+                    {
+                        if (!menu.g_GameEngineScript_.features[featureIdx])
+                            continue;
+                        if (eF.engineFeatures_TYP[featureIdx] != featureType)
+                            continue;
+                        // Only consider features at max tech level
+                        if (eF.engineFeatures_TECH[featureIdx] != maxTechForType)
+                            continue;
+
+                        int devCost = eF.GetDevCosts(featureIdx);
+
+                        if (mode == EngineFeatureMode.Best)
+                        {
+                            // Best mode: prefer most expensive at max tech level
+                            if (devCost > bestDevCost)
+                            {
+                                bestDevCost = devCost;
+                                bestFeatureIndex = featureIdx;
+                            }
+                        }
+                        else // Cheapest mode
+                        {
+                            // Cheapest mode: prefer least expensive at max tech level
+                            if (devCost < bestDevCost)
+                            {
+                                bestDevCost = devCost;
+                                bestFeatureIndex = featureIdx;
+                            }
+                        }
+                    }
+
+                    // Set the feature if found
+                    if (bestFeatureIndex >= 0)
+                    {
+                        menu.SetEngineFeatureSimple(featureType, bestFeatureIndex);
+                        string typeName = featureType switch
+                        {
+                            0 => "Grafik",
+                            1 => "Sound",
+                            2 => "KI",
+                            3 => "Physik",
+                            _ => $"Type{featureType}"
+                        };
+                        
+                        Plugin.Logger.LogInfo($"  {typeName}: {eF.GetName(bestFeatureIndex)} (Tech: {maxTechForType}, Cost: ${bestDevCost})");
+                    }
+                }
+
+                // Recalculate dev points (the UI will update automatically)
+                menu.GetGesamtDevPoints();
+
+                Plugin.Logger.LogInfo("Engine features applied successfully");
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Logger.LogError($"Error in ApplyEngineFeatures: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// Get platform tech level by looking up the platform GameObject
+        /// Replicates the private Menu_DevGame.GetPlatformTechLevel method
+        /// </summary>
+        private static int GetPlatformTechLevel(int platformId)
+        {
+            GameObject platformObj = GameObject.Find("PLATFORM_" + platformId.ToString());
+            if (platformObj != null)
+            {
+                platformScript platform = platformObj.GetComponent<platformScript>();
+                if (platform != null)
+                    return platform.tech;
+            }
+            return 0;
         }
     }
 }
