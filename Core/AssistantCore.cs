@@ -81,7 +81,7 @@ namespace MGT2AssistantButton.Core
         public static void ApplyOptimalSliders()
         {
             Plugin.Logger.LogInfo("Core: Applying Optimal Sliders...");
-            // TODO: Implement slider optimization
+            Handlers.SliderHandler.ApplyOptimalSliders(_currentMenu);
         }
 
         public static void ApplyBestGameplayFeatures()
