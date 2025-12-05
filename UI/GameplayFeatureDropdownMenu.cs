@@ -1,22 +1,22 @@
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
+using MGT2AssistantButton.Core;
 
 namespace MGT2AssistantButton.UI
 {
     /// <summary>
-    /// Dropdown menu for platform selection modes
+    /// Dropdown menu for gameplay features selection modes
     /// </summary>
-    public class PlatformDropdownMenu : MonoBehaviour
+    public class GameplayFeatureDropdownMenu : MonoBehaviour
     {
         private GameObject menuPanel;
-        private Core.PlatformMode currentMode = Core.PlatformMode.ByMarket;
-        private System.Action<Core.PlatformMode> onModeSelected;
+        private GameplayFeatureMode currentMode = GameplayFeatureMode.Best;
+        private System.Action<GameplayFeatureMode> onModeSelected;
         private Button triggerButton;
 
-        public static PlatformDropdownMenu Create(Button button, System.Action<Core.PlatformMode> callback)
+        public static GameplayFeatureDropdownMenu Create(Button button, System.Action<GameplayFeatureMode> callback)
         {
-            var dropdown = button.gameObject.AddComponent<PlatformDropdownMenu>();
+            var dropdown = button.gameObject.AddComponent<GameplayFeatureDropdownMenu>();
             dropdown.triggerButton = button;
             dropdown.onModeSelected = callback;
             dropdown.CreateDropdownMenu();
@@ -30,7 +30,7 @@ namespace MGT2AssistantButton.UI
         private void CreateDropdownMenu()
         {
             // Create panel for dropdown menu
-            menuPanel = new GameObject("PlatformDropdownPanel");
+            menuPanel = new GameObject("GameplayFeatureDropdownPanel");
             menuPanel.transform.SetParent(triggerButton.transform.root, false); // Use root (Canvas)
             menuPanel.SetActive(false);
 
@@ -39,7 +39,7 @@ namespace MGT2AssistantButton.UI
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
             rect.pivot = new Vector2(0f, 0.5f); // Left center
-            rect.sizeDelta = new Vector2(180f, 200f);
+            rect.sizeDelta = new Vector2(200f, 115f); // Taller for 3 items
             
             // Position to the right of the button (in screen space)
             var buttonRect = triggerButton.GetComponent<RectTransform>();
@@ -64,24 +64,22 @@ namespace MGT2AssistantButton.UI
             outline.effectDistance = new Vector2(1, -1);
 
             // Create menu items
-            CreateMenuItem("✓ Best Market Share", Core.PlatformMode.ByMarket, 0);
-            CreateMenuItem("  Console Focus", Core.PlatformMode.ConsoleOnly, 1);
-            CreateMenuItem("  PC Focus", Core.PlatformMode.PCOnly, 2);
-            CreateMenuItem("  Own Platforms First", Core.PlatformMode.OurConsoleFirst, 3);
-            CreateMenuItem("  Highest Tech Only", Core.PlatformMode.HighestTechOnly, 4);
+            CreateMenuItem("✓ Best (Good+Neutral)", GameplayFeatureMode.Best, 0);
+            CreateMenuItem("  All (Fill to limit)", GameplayFeatureMode.All, 1);
+            CreateMenuItem("  Platform Only", GameplayFeatureMode.PlatformOnly, 2);
         }
 
-        private void CreateMenuItem(string label, Core.PlatformMode mode, int index)
+        private void CreateMenuItem(string label, GameplayFeatureMode mode, int index)
         {
-            GameObject item = new GameObject($"MenuItem_{mode}");
+            GameObject item = new GameObject("MenuItem_" + mode.ToString());
             item.transform.SetParent(menuPanel.transform, false);
 
             var rect = item.AddComponent<RectTransform>();
             rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = new Vector2(1, 1);
             rect.pivot = new Vector2(0.5f, 1f);
-            rect.sizeDelta = new Vector2(0, 30f);
-            rect.anchoredPosition = new Vector2(0, -5f - (index * 32f));
+            rect.sizeDelta = new Vector2(0, 32f);
+            rect.anchoredPosition = new Vector2(0, -5f - (index * 35f));
 
             // Add button component
             var button = item.AddComponent<Button>();
@@ -91,8 +89,8 @@ namespace MGT2AssistantButton.UI
             // Hover effect
             var colors = button.colors;
             colors.normalColor = new Color(0.2f, 0.2f, 0.2f, 0.5f);
-            colors.highlightedColor = new Color(0.3f, 0.5f, 0.8f, 0.8f);
-            colors.pressedColor = new Color(0.2f, 0.4f, 0.7f, 1f);
+            colors.highlightedColor = new Color(0.5f, 0.4f, 0.6f, 0.8f); // Purple for gameplay
+            colors.pressedColor = new Color(0.4f, 0.3f, 0.5f, 1f);
             button.colors = colors;
 
             // Add text
@@ -124,10 +122,11 @@ namespace MGT2AssistantButton.UI
             });
         }
 
-        private void SelectMode(Core.PlatformMode mode)
+        private void SelectMode(GameplayFeatureMode mode)
         {
             currentMode = mode;
-            onModeSelected?.Invoke(mode);
+            if (onModeSelected != null)
+                onModeSelected.Invoke(mode);
         }
 
         private void UpdateMenuItems()
@@ -143,7 +142,8 @@ namespace MGT2AssistantButton.UI
                     if (text != null)
                     {
                         var modeName = child.name.Replace("MenuItem_", "");
-                        if (System.Enum.TryParse<Core.PlatformMode>(modeName, out var mode))
+                        GameplayFeatureMode mode;
+                        if (System.Enum.TryParse<GameplayFeatureMode>(modeName, out mode))
                         {
                             text.text = mode == currentMode 
                                 ? "✓ " + GetModeLabel(mode)
@@ -154,17 +154,19 @@ namespace MGT2AssistantButton.UI
             }
         }
 
-        private string GetModeLabel(Core.PlatformMode mode)
+        private string GetModeLabel(GameplayFeatureMode mode)
         {
-            return mode switch
+            switch (mode)
             {
-                Core.PlatformMode.ByMarket => "Best Market Share",
-                Core.PlatformMode.ConsoleOnly => "Console Focus",
-                Core.PlatformMode.PCOnly => "PC Focus",
-                Core.PlatformMode.OurConsoleFirst => "Own Platforms First",
-                Core.PlatformMode.HighestTechOnly => "Highest Tech Only",
-                _ => mode.ToString()
-            };
+                case GameplayFeatureMode.Best:
+                    return "Best (Good+Neutral)";
+                case GameplayFeatureMode.All:
+                    return "All (Fill to limit)";
+                case GameplayFeatureMode.PlatformOnly:
+                    return "Platform Only";
+                default:
+                    return mode.ToString();
+            }
         }
 
         private void ToggleMenu()

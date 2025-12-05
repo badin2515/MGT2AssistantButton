@@ -189,9 +189,20 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage5Buttons(GameObject descSource, Transform parent, Menu_DevGame menu)
         {
-            // Gameplay Feature is now Desc style with custom icon
-            // Updated position to (0, -259) based on user image
-            gameplayFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_GameplayFeature", new Vector2(0f, -259f), OnGameplayFeatureButtonClick);
+            // Gameplay Feature button with dropdown
+            gameplayFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_GameplayFeature", new Vector2(0f, -259f), null);
+            
+            // Add dropdown menu instead of direct click
+            if (gameplayFeatureButton != null)
+            {
+                var button = gameplayFeatureButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    GameplayFeatureDropdownMenu.Create(button, (mode) => {
+                        MGT2AssistantButton.Core.AssistantCore.ApplyGameplayFeatureMode(mode);
+                    });
+                }
+            }
         }
 
         // --- Helper Creation Methods ---

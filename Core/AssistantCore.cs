@@ -87,7 +87,13 @@ namespace MGT2AssistantButton.Core
         public static void ApplyBestGameplayFeatures()
         {
             Plugin.Logger.LogInfo("Core: Applying Best Gameplay Features...");
-            // TODO: Implement gameplay features selection
+            Handlers.GameplayFeatureHandler.ApplyGameplayFeatures(_currentMenu, GameplayFeatureMode.Best);
+        }
+
+        public static void ApplyGameplayFeatureMode(GameplayFeatureMode mode)
+        {
+            Plugin.Logger.LogInfo($"Core: Applying Gameplay Feature Mode: {mode}");
+            Handlers.GameplayFeatureHandler.ApplyGameplayFeatures(_currentMenu, mode);
         }
     }
 }
