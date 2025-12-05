@@ -438,74 +438,20 @@ namespace MGT2AssistantButton.UI
 
         // --- Event Handlers ---
 
-        private static void OnTargetGroupButtonClick() 
-        { 
-            AssistantCore.ApplyBestTargetGroup(); 
-        }
-        
-        private static void OnMainGenreButtonClick() 
-        { 
-            AssistantCore.ApplyBestMainGenre(); 
-        }
-        
-        private static void OnSubgenreButtonClick() 
-        { 
-            AssistantCore.ApplyBestSubGenre(); 
-        }
-        
-        private static void OnMainThemeButtonClick() 
-        { 
-            AssistantCore.ApplyBestMainTheme(); 
-        }
-        
-        private static void OnSubthemeButtonClick() 
-        { 
-            AssistantCore.ApplyBestSubTheme(); 
-        }
-        
-        private static void OnRandomNameButtonClick() 
-        { 
-            AssistantCore.ApplyRealName(); 
-        }
-        
-        private static void OnEngineButtonClick() 
-        { 
-            AssistantCore.ApplyBestEngine(); 
-        }
-        
-        private static void OnPlatformButtonClick() 
-        { 
-            AssistantCore.ApplyBestPlatform(); 
-        }
-        
-        private static void OnEngineFeatureButtonClick() 
-        { 
-            AssistantCore.ApplyBestEngineFeatures(); 
-        }
-
-        private static void OnAntiCheatButtonClick() 
-        { 
-            AssistantCore.ApplyAntiCheat(); 
-        }
-
-        private static void OnCopyProtectButtonClick() 
-        { 
-            AssistantCore.ApplyCopyProtect(); 
-        }
-
-        private static void OnLanguageButtonClick() 
-        { 
-            AssistantCore.ApplyBestLanguage(); 
-        }
-
-        private static void OnSliderButtonClick() 
-        { 
-            AssistantCore.ApplyOptimalSliders(); 
-        }
-
-        private static void OnGameplayFeatureButtonClick() 
-        { 
-            AssistantCore.ApplyBestGameplayFeatures(); 
-        }
+        // Event Handlers
+        private static void OnTargetGroupButtonClick() => AssistantCore.ApplyBestTargetGroup();
+        private static void OnMainGenreButtonClick() => AssistantCore.ApplyBestMainGenre();
+        private static void OnSubgenreButtonClick() => AssistantCore.ApplyBestSubGenre();
+        private static void OnMainThemeButtonClick() => AssistantCore.ApplyBestMainTheme();
+        private static void OnSubthemeButtonClick() => AssistantCore.ApplyBestSubTheme();
+        private static void OnRandomNameButtonClick() => AssistantCore.ApplyRealName();
+        private static void OnEngineButtonClick() => AssistantCore.ApplyBestEngine();
+        private static void OnPlatformButtonClick() => AssistantCore.ApplyBestPlatform();
+        private static void OnEngineFeatureButtonClick() => AssistantCore.ApplyBestEngineFeatures();
+        private static void OnAntiCheatButtonClick() => AssistantCore.ApplyAntiCheat();
+        private static void OnCopyProtectButtonClick() => AssistantCore.ApplyCopyProtect();
+        private static void OnLanguageButtonClick() => AssistantCore.ApplyBestLanguage();
+        private static void OnSliderButtonClick() => AssistantCore.ApplyOptimalSliders();
+        private static void OnGameplayFeatureButtonClick() => AssistantCore.ApplyBestGameplayFeatures();
     }
 }
