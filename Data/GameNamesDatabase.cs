@@ -90,7 +90,6 @@ namespace MGT2AssistantButton.Data
                     }
                     
                     _loaded = true;
-                    Plugin.Logger.LogInfo($"Loaded game names database with {_data?.genres?.Count ?? 0} genres");
                 }
                 else
                 {

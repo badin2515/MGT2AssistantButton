@@ -244,7 +244,7 @@ namespace MGT2AssistantButton.UI
                 }
                 
                 ButtonHelper.AddButtonComponent(btn, onClick);
-                Plugin.Logger.LogInfo($"{name} created at {pos} with custom icon child");
+
             }
             return btn;
         }
@@ -286,7 +286,7 @@ namespace MGT2AssistantButton.UI
                     iconRect.sizeDelta = new Vector2(18f, 18f); // Small icon
                 }
 
-                Plugin.Logger.LogInfo($"{name} created at {pos} with icon");
+
             }
             return btn;
         }

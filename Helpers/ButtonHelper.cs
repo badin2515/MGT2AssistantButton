@@ -253,7 +253,6 @@ namespace MGT2AssistantButton.Helpers
             if (textComp != null)
             {
                 textComp.text = newText;
-                Plugin.Logger.LogInfo($"Updated Text component on {button.name} to: {newText}");
                 return;
             }
 
@@ -268,7 +267,6 @@ namespace MGT2AssistantButton.Helpers
                     if (prop != null)
                     {
                         prop.SetValue(comp, newText, null);
-                        Plugin.Logger.LogInfo($"Updated TMPro component on {button.name} to: {newText}");
                         return;
                     }
                 }

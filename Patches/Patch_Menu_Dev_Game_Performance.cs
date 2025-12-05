@@ -98,7 +98,7 @@ namespace MGT2AssistantButton.Patches
                         count++;
                     }
                 }
-                Plugin.Logger.LogInfo($"[Cache] Ready: {count} platforms");
+
                 return;
             }
 
@@ -138,10 +138,7 @@ namespace MGT2AssistantButton.Patches
                 yield return inst;
             }
 
-            if (replacedCount > 0)
-            {
-                Plugin.Logger.LogInfo($"[Transpiler] {methodName}: {replacedCount} Find() replaced");
-            }
+
         }
 
         [HarmonyPatch("SetPlatform")]

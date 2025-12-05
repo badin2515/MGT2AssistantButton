@@ -79,7 +79,6 @@ namespace MGT2AssistantButton.Patches
                 if (platformCount > 0)
                 {
                     string typeName = GetPlatformTypeName(newValue);
-                    Plugin.Logger.LogInfo($"User changed platform type to '{typeName}' - clearing {platformCount} platform(s)");
 
                     // ล้าง platform ทั้งหมด
                     for (int i = 0; i < __instance.g_GamePlatform.Length; i++)
