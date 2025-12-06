@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using System;
 using System.Collections.Generic;
 
@@ -25,6 +26,7 @@ namespace MGT2AssistantButton.UI
         protected abstract string PanelName { get; }
         protected abstract Color HighlightColor { get; }
         protected abstract TMode DefaultMode { get; }
+        protected virtual bool DropdownOnLeft => false; // Override to true for left-side dropdown
         protected abstract void DefineMenuItems();
         protected abstract string GetModeLabel(TMode mode);
 
@@ -35,7 +37,24 @@ namespace MGT2AssistantButton.UI
             currentMode = DefaultMode;
             DefineMenuItems();
             CreateDropdownMenu();
-            button.onClick.AddListener(ToggleMenu);
+            
+            // Left Click: Execute current mode
+            button.onClick.AddListener(() => onModeSelected?.Invoke(currentMode));
+
+            // Right Click: Toggle Menu via EventTrigger
+            EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
+            if (trigger == null) trigger = button.gameObject.AddComponent<EventTrigger>();
+            
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerClick;
+            entry.callback.AddListener((data) => { 
+                PointerEventData pData = (PointerEventData)data;
+                if (pData.button == PointerEventData.InputButton.Right)
+                {
+                    ToggleMenu();
+                }
+            });
+            trigger.triggers.Add(entry);
         }
 
         private void CreateDropdownMenu()
@@ -44,14 +63,34 @@ namespace MGT2AssistantButton.UI
             menuPanel.transform.SetParent(triggerButton.transform.root, false);
             menuPanel.SetActive(false);
 
+            // Calculate width based on longest text
+            float maxWidth = 100f; // minimum width
+            foreach (var item in menuItems)
+            {
+                // Estimate width: roughly 7 pixels per character + padding
+                float estimatedWidth = (item.Label.Length * 7f) + 40f;
+                if (estimatedWidth > maxWidth) maxWidth = estimatedWidth;
+            }
+            maxWidth = Mathf.Min(maxWidth, 300f); // cap at 300
+
             var rect = menuPanel.AddComponent<RectTransform>();
             rect.anchorMin = new Vector2(0.5f, 0.5f);
             rect.anchorMax = new Vector2(0.5f, 0.5f);
-            rect.pivot = new Vector2(0f, 0.5f);
-            rect.sizeDelta = new Vector2(180f, 5f + menuItems.Count * 35f);
+            rect.sizeDelta = new Vector2(maxWidth, 5f + menuItems.Count * 35f);
             
             var buttonRect = triggerButton.GetComponent<RectTransform>();
-            rect.position = new Vector3(buttonRect.position.x + 25f, buttonRect.position.y, buttonRect.position.z);
+            
+            // Position dropdown on left or right of button
+            if (DropdownOnLeft)
+            {
+                rect.pivot = new Vector2(1f, 0.5f); // Pivot at right edge
+                rect.position = new Vector3(buttonRect.position.x - 25f, buttonRect.position.y, buttonRect.position.z);
+            }
+            else
+            {
+                rect.pivot = new Vector2(0f, 0.5f); // Pivot at left edge
+                rect.position = new Vector3(buttonRect.position.x + 25f, buttonRect.position.y, buttonRect.position.z);
+            }
 
             var canvas = menuPanel.AddComponent<Canvas>();
             canvas.overrideSorting = true;

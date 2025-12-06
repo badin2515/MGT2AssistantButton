@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using System;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace MGT2AssistantButton.Helpers
 {
@@ -75,6 +78,17 @@ namespace MGT2AssistantButton.Helpers
             }
             
             // Logging disabled for performance
+            // Copy tooltips from source
+            tooltip sourceTooltip = sourceButton.GetComponent<tooltip>();
+            if (sourceTooltip != null)
+            {
+                tooltip newTooltip = newButton.AddComponent<tooltip>();
+                newTooltip.c = sourceTooltip.c;
+                newTooltip.textID = sourceTooltip.textID;
+                newTooltip.textArray = sourceTooltip.textArray;
+                newTooltip.shortcut = sourceTooltip.shortcut;
+            }
+
             return newButton;
         }
         
@@ -285,5 +299,214 @@ namespace MGT2AssistantButton.Helpers
                 Plugin.Logger.LogWarning($"Could not find any Text component or Text GameObject on button {button.name}");
             }
         }
+        public static void SetTooltip(GameObject button, string text)
+        {
+            if (button == null) return;
+            tooltip t = button.GetComponent<tooltip>();
+            if (t == null) t = button.AddComponent<tooltip>();
+            
+            t.c = text;
+            t.textID = -1;
+            t.textArray = "";
+        }
+
+        /// <summary>
+        /// เพิ่ม Dropdown Menu ให้กับปุ่ม - แสดงเมื่อคลิกขวา
+        /// </summary>
+        /// <param name="button">Button component ที่จะเพิ่ม dropdown</param>
+        /// <param name="menuItems">รายการ items ใน dropdown</param>
+        /// <param name="defaultIndex">Index ของ item ที่เลือกเริ่มต้น (0-based)</param>
+        /// <param name="onLeft">true = แสดง dropdown ทางซ้าย, false = แสดงทางขวา (default)</param>
+        /// <param name="highlightColor">สี highlight (optional)</param>
+        public static void AddDropdown(Button button, List<DropdownItem> menuItems, int defaultIndex = 0, bool onLeft = false, Color? highlightColor = null)
+        {
+            if (button == null || menuItems == null || menuItems.Count == 0) return;
+
+            Color highlight = highlightColor ?? new Color(0.3f, 0.6f, 0.9f, 1f);
+            int currentIndex = defaultIndex;
+            GameObject menuPanel = null;
+
+            // Calculate width based on longest text
+            float maxWidth = 100f; // minimum width
+            foreach (var item in menuItems)
+            {
+                // Estimate width: roughly 7 pixels per character + padding
+                float estimatedWidth = (item.Label.Length * 7f) + 40f;
+                if (estimatedWidth > maxWidth) maxWidth = estimatedWidth;
+            }
+            maxWidth = Mathf.Min(maxWidth, 300f); // cap at 300
+
+            // Create dropdown panel
+            menuPanel = new GameObject("DropdownPanel");
+            menuPanel.transform.SetParent(button.transform.root, false);
+            menuPanel.SetActive(false);
+
+            var rect = menuPanel.AddComponent<RectTransform>();
+            rect.anchorMin = new Vector2(0.5f, 0.5f);
+            rect.anchorMax = new Vector2(0.5f, 0.5f);
+            rect.sizeDelta = new Vector2(maxWidth, 5f + menuItems.Count * 35f);
+
+            var buttonRect = button.GetComponent<RectTransform>();
+            
+            // Position dropdown on left or right
+            if (onLeft)
+            {
+                rect.pivot = new Vector2(1f, 0.5f); // Pivot at right edge
+                rect.position = new Vector3(buttonRect.position.x - 25f, buttonRect.position.y, buttonRect.position.z);
+            }
+            else
+            {
+                rect.pivot = new Vector2(0f, 0.5f); // Pivot at left edge
+                rect.position = new Vector3(buttonRect.position.x + 25f, buttonRect.position.y, buttonRect.position.z);
+            }
+
+            var canvas = menuPanel.AddComponent<Canvas>();
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 1000;
+
+            menuPanel.AddComponent<GraphicRaycaster>();
+
+            var bg = menuPanel.AddComponent<Image>();
+            bg.color = new Color(0.15f, 0.15f, 0.15f, 0.95f);
+
+            var outline = menuPanel.AddComponent<Outline>();
+            outline.effectColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+            outline.effectDistance = new Vector2(1, -1);
+
+
+            // Create menu items
+            List<Text> itemTexts = new List<Text>();
+            for (int i = 0; i < menuItems.Count; i++)
+            {
+                int index = i;
+                string label = menuItems[i].Label;
+                Action action = menuItems[i].Action;
+
+                GameObject item = new GameObject("MenuItem_" + i);
+                item.transform.SetParent(menuPanel.transform, false);
+
+                var itemRect = item.AddComponent<RectTransform>();
+                itemRect.anchorMin = new Vector2(0, 1);
+                itemRect.anchorMax = new Vector2(1, 1);
+                itemRect.pivot = new Vector2(0.5f, 1f);
+                itemRect.sizeDelta = new Vector2(0, 32f);
+                itemRect.anchoredPosition = new Vector2(0, -5f - (i * 35f));
+
+                var itemButton = item.AddComponent<Button>();
+                var img = item.AddComponent<Image>();
+                img.color = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+
+                var colors = itemButton.colors;
+                colors.normalColor = new Color(0.2f, 0.2f, 0.2f, 0.5f);
+                colors.highlightedColor = highlight;
+                colors.pressedColor = new Color(highlight.r * 0.8f, highlight.g * 0.8f, highlight.b * 0.8f, 1f);
+                itemButton.colors = colors;
+
+                GameObject textObj = new GameObject("Text");
+                textObj.transform.SetParent(item.transform, false);
+
+                var textRect = textObj.AddComponent<RectTransform>();
+                textRect.anchorMin = Vector2.zero;
+                textRect.anchorMax = Vector2.one;
+                textRect.sizeDelta = Vector2.zero;
+                textRect.anchoredPosition = Vector2.zero;
+                textRect.offsetMin = new Vector2(10, 0);
+
+                var text = textObj.AddComponent<Text>();
+                text.text = (i == currentIndex ? "✓ " : "  ") + label;
+                text.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+                text.fontSize = 13;
+                text.color = Color.white;
+                text.alignment = TextAnchor.MiddleLeft;
+                text.horizontalOverflow = HorizontalWrapMode.Overflow;
+
+                itemTexts.Add(text);
+
+                itemButton.onClick.AddListener(() => {
+                    currentIndex = index;
+                    if (action != null) action.Invoke();
+                    // Update checkmarks
+                    for (int j = 0; j < itemTexts.Count; j++)
+                    {
+                        itemTexts[j].text = (j == currentIndex ? "✓ " : "  ") + menuItems[j].Label;
+                    }
+                    menuPanel.SetActive(false);
+                });
+            }
+
+            // Left Click: Execute current action
+            button.onClick.AddListener(() => {
+                if (currentIndex >= 0 && currentIndex < menuItems.Count)
+                {
+                    if (menuItems[currentIndex].Action != null)
+                        menuItems[currentIndex].Action.Invoke();
+                }
+            });
+
+            // Right Click: Toggle Menu
+            EventTrigger trigger = button.gameObject.GetComponent<EventTrigger>();
+            if (trigger == null) trigger = button.gameObject.AddComponent<EventTrigger>();
+
+            EventTrigger.Entry entry = new EventTrigger.Entry();
+            entry.eventID = EventTriggerType.PointerClick;
+            entry.callback.AddListener((data) => {
+                PointerEventData pData = (PointerEventData)data;
+                if (pData.button == PointerEventData.InputButton.Right)
+                {
+                    menuPanel.SetActive(!menuPanel.activeSelf);
+                    if (menuPanel.activeSelf) menuPanel.transform.SetAsLastSibling();
+                }
+            });
+            trigger.triggers.Add(entry);
+
+            // Add auto-close behavior
+            var closer = button.gameObject.AddComponent<DropdownAutoCloser>();
+            closer.Setup(menuPanel, button.GetComponent<RectTransform>());
+        }
+    }
+
+    /// <summary>
+    /// Item สำหรับ Dropdown Menu
+    /// </summary>
+    public class DropdownItem
+    {
+        public string Label { get; set; }
+        public Action Action { get; set; }
+
+        public DropdownItem(string label, Action action)
+        {
+            Label = label;
+            Action = action;
+        }
+    }
+
+    /// <summary>
+    /// Helper component to auto-close dropdown when clicking outside
+    /// </summary>
+    public class DropdownAutoCloser : MonoBehaviour
+    {
+        private GameObject panel;
+        private RectTransform buttonRect;
+
+        public void Setup(GameObject menuPanel, RectTransform buttonRectTransform)
+        {
+            panel = menuPanel;
+            buttonRect = buttonRectTransform;
+        }
+
+        void Update()
+        {
+            if (panel != null && panel.activeSelf && Input.GetMouseButtonDown(0))
+            {
+                if (!RectTransformUtility.RectangleContainsScreenPoint(
+                    panel.GetComponent<RectTransform>(), Input.mousePosition) &&
+                    !RectTransformUtility.RectangleContainsScreenPoint(
+                    buttonRect, Input.mousePosition))
+                {
+                    panel.SetActive(false);
+                }
+            }
+        }
     }
 }
+

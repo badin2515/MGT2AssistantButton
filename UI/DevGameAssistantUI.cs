@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MGT2AssistantButton.Helpers;
 using MGT2AssistantButton.Core;
+using System.Collections.Generic;
 
 namespace MGT2AssistantButton.UI
 {
@@ -96,29 +97,117 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage1Buttons(GameObject descSource, GameObject randomNameSource, Transform parent)
         {
-            // Desc Style Buttons
-            targetGroupButton = CreateDescButton(descSource, parent, "Button_Assist_TargetGroup", new Vector2(295f, 51f), OnTargetGroupButtonClick);
-            mainGenreButton = CreateDescButton(descSource, parent, "Button_Assist_MainGenre", new Vector2(-310f, -33f), OnMainGenreButtonClick);
-            subgenreButton = CreateDescButton(descSource, parent, "Button_Assist_Subgenre", new Vector2(295f, -33f), OnSubgenreButtonClick);
-            mainThemeButton = CreateDescButton(descSource, parent, "Button_Assist_MainTheme", new Vector2(-310f, -130f), OnMainThemeButtonClick);
-            subthemeButton = CreateDescButton(descSource, parent, "Button_Assist_Subtheme", new Vector2(295f, -130f), OnSubthemeButtonClick);
+            // Target Group button with dropdown (ขวา)
+            targetGroupButton = CreateDescButton(descSource, parent, "Button_Assist_TargetGroup", new Vector2(295f, 51f), null);
+            ButtonHelper.SetTooltip(targetGroupButton, "Auto-select Best Target Group (Right-click for options)");
+            if (targetGroupButton != null)
+            {
+                var button = targetGroupButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Target Group", () => AssistantCore.ApplyBestTargetGroup())
+                    });
+                }
+            }
+            
+            // Main Genre button with dropdown (ซ้าย)
+            mainGenreButton = CreateDescButton(descSource, parent, "Button_Assist_MainGenre", new Vector2(-310f, -33f), null);
+            ButtonHelper.SetTooltip(mainGenreButton, "Auto-select Best Main Genre (Right-click for options)");
+            if (mainGenreButton != null)
+            {
+                var button = mainGenreButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Genre", () => AssistantCore.ApplyBestMainGenre())
+                    }, 0, true); // onLeft = true
+                }
+            }
+            
+            // Sub Genre button with dropdown (ขวา)
+            subgenreButton = CreateDescButton(descSource, parent, "Button_Assist_Subgenre", new Vector2(295f, -33f), null);
+            ButtonHelper.SetTooltip(subgenreButton, "Auto-select Best Sub Genre (Right-click for options)");
+            if (subgenreButton != null)
+            {
+                var button = subgenreButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Genre", () => AssistantCore.ApplyBestSubGenre())
+                    });
+                }
+            }
+            
+            // Main Theme button with dropdown (ซ้าย)
+            mainThemeButton = CreateDescButton(descSource, parent, "Button_Assist_MainTheme", new Vector2(-310f, -130f), null);
+            ButtonHelper.SetTooltip(mainThemeButton, "Auto-select Best Main Theme (Right-click for options)");
+            if (mainThemeButton != null)
+            {
+                var button = mainThemeButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Theme", () => AssistantCore.ApplyBestMainTheme())
+                    }, 0, true); // onLeft = true
+                }
+            }
+            
+            // Sub Theme button with dropdown (ขวา)
+            subthemeButton = CreateDescButton(descSource, parent, "Button_Assist_Subtheme", new Vector2(295f, -130f), null);
+            ButtonHelper.SetTooltip(subthemeButton, "Auto-select Best Sub Theme (Right-click for options)");
+            if (subthemeButton != null)
+            {
+                var button = subthemeButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Theme", () => AssistantCore.ApplyBestSubTheme())
+                    });
+                }
+            }
 
-            // RandomName Style Button
+            // RandomName Style Button with dropdown
             if (randomNameSource != null)
             {
                 ModifyOriginalRandomNameButton(randomNameSource);
-                randomNameButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_RandomName", new Vector2(80f, 193f), "Real Name", OnRandomNameButtonClick);
+                randomNameButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_RandomName", new Vector2(80f, 193f), "Real Name", null);
+                ButtonHelper.SetTooltip(randomNameButton, "Generate Real Game Name (Right-click for options)");
+                if (randomNameButton != null)
+                {
+                    var button = randomNameButton.GetComponent<Button>();
+                    if (button != null)
+                    {
+                        ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                            new DropdownItem("Real Game Name", () => AssistantCore.ApplyRealName())
+                        });
+                    }
+                }
             }
         }
 
+
+
+
         private static void CreatePage2Buttons(GameObject descSource, Transform parent)
         {
-            engineButton = CreateDescButton(descSource, parent, "Button_Assist_Engine", new Vector2(240f, 235f), OnEngineButtonClick);
+            // Engine button with dropdown
+            engineButton = CreateDescButton(descSource, parent, "Button_Assist_Engine", new Vector2(240f, 235f), null);
+            ButtonHelper.SetTooltip(engineButton, "Auto-select Best Engine (Right-click for options)");
+            if (engineButton != null)
+            {
+                var button = engineButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Engine", () => AssistantCore.ApplyBestEngine())
+                    });
+                }
+            }
             
-            // Platform button with dropdown - don't set onClick yet
+            // Platform button with dropdown
             platformButton = CreateDescButton(descSource, parent, "Button_Assist_Platform", new Vector2(300f, -75f), null);
-            
-            // Add dropdown menu to platform button
+            ButtonHelper.SetTooltip(platformButton, "Auto-select Platform (Right-click for options)");
             if (platformButton != null)
             {
                 var button = platformButton.GetComponent<Button>();
@@ -135,6 +224,7 @@ namespace MGT2AssistantButton.UI
         {
             // Engine Feature button with dropdown - don't set onClick directly
             engineFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_EngineFeature", new Vector2(300f, 133f), null);
+            ButtonHelper.SetTooltip(engineFeatureButton, "Auto-select Engine Features (Right-click for options)");
             
             // Add dropdown menu to engine feature button
             if (engineFeatureButton != null)
@@ -148,13 +238,39 @@ namespace MGT2AssistantButton.UI
                 }
             }
             
-            antiCheatButton = CreateDescButton(descSource, parent, "Button_Assist_AntiCheat", new Vector2(-320f, -203f), OnAntiCheatButtonClick);
-            copyProtectButton = CreateDescButton(descSource, parent, "Button_Assist_CopyProtect", new Vector2(300f, -205f), OnCopyProtectButtonClick);
+            // AntiCheat button with dropdown
+            antiCheatButton = CreateDescButton(descSource, parent, "Button_Assist_AntiCheat", new Vector2(-320f, -203f), null);
+            ButtonHelper.SetTooltip(antiCheatButton, "Auto-select Best Anti-Cheat (Right-click for options)");
+            if (antiCheatButton != null)
+            {
+                var button = antiCheatButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Anti-Cheat", () => AssistantCore.ApplyAntiCheat())
+                    }, 0, true); // onLeft = true
+                }
+            }
+            
+            // CopyProtect button with dropdown
+            copyProtectButton = CreateDescButton(descSource, parent, "Button_Assist_CopyProtect", new Vector2(300f, -205f), null);
+            ButtonHelper.SetTooltip(copyProtectButton, "Auto-select Best Copy Protection (Right-click for options)");
+            if (copyProtectButton != null)
+            {
+                var button = copyProtectButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Best Copy Protection", () => AssistantCore.ApplyCopyProtect())
+                    });
+                }
+            }
 
             if (randomNameSource != null)
             {
                 // Language button with dropdown - don't set onClick directly
                 languageButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_Language", new Vector2(200f, -112f), "Language", null);
+                ButtonHelper.SetTooltip(languageButton, "Auto-select Languages (Right-click for options)");
                 
                 // Add dropdown menu to language button
                 if (languageButton != null)
@@ -175,12 +291,22 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage4Buttons(GameObject descSource, Transform parent, Menu_DevGame menu)
         {
-            sliderButton = CreateDescButton(descSource, parent, "Button_Assist_Slider", new Vector2(235f, 30f), OnSliderButtonClick);
+            // Slider button with dropdown
+            sliderButton = CreateDescButton(descSource, parent, "Button_Assist_Slider", new Vector2(235f, 30f), null);
+            ButtonHelper.SetTooltip(sliderButton, "Auto-configure Gameplay Sliders (Right-click for options)");
             
-            // Slider button needs specific size adjustment if not 40x40
             if (sliderButton != null)
             {
+                // Slider button needs specific size adjustment
                 sliderButton.GetComponent<RectTransform>().sizeDelta = new Vector2(50f, 50f);
+                
+                var button = sliderButton.GetComponent<Button>();
+                if (button != null)
+                {
+                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
+                        new DropdownItem("Optimal Sliders", () => AssistantCore.ApplyOptimalSliders())
+                    });
+                }
             }
 
             GameObject autoDesign = FindButtonByName(menu, "Button_AutoDesingSettings");
@@ -191,6 +317,7 @@ namespace MGT2AssistantButton.UI
         {
             // Gameplay Feature button with dropdown
             gameplayFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_GameplayFeature", new Vector2(0f, -259f), null);
+            ButtonHelper.SetTooltip(gameplayFeatureButton, "Auto-select Gameplay Features (Right-click for options)");
             
             // Add dropdown menu instead of direct click
             if (gameplayFeatureButton != null)
