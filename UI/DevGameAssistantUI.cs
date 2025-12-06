@@ -14,6 +14,7 @@ namespace MGT2AssistantButton.UI
         private static GameObject mainThemeButton;
         private static GameObject subthemeButton;
         private static GameObject randomNameButton;
+        private static GameObject autoAllButton;
         private static GameObject engineButton;
         private static GameObject platformButton;
         private static GameObject engineFeatureButton;
@@ -108,6 +109,7 @@ namespace MGT2AssistantButton.UI
             {
                 ModifyOriginalRandomNameButton(randomNameSource);
                 randomNameButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_RandomName", new Vector2(80f, 193f), "Real Name", OnRandomNameButtonClick);
+                autoAllButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
             }
         }
 
@@ -301,6 +303,7 @@ namespace MGT2AssistantButton.UI
             if (mainThemeButton) Object.Destroy(mainThemeButton);
             if (subthemeButton) Object.Destroy(subthemeButton);
             if (randomNameButton) Object.Destroy(randomNameButton);
+            if (autoAllButton) Object.Destroy(autoAllButton);
             if (engineButton) Object.Destroy(engineButton);
             if (platformButton) Object.Destroy(platformButton);
             if (engineFeatureButton) Object.Destroy(engineFeatureButton);
@@ -453,5 +456,6 @@ namespace MGT2AssistantButton.UI
         private static void OnLanguageButtonClick() => AssistantCore.ApplyBestLanguage();
         private static void OnSliderButtonClick() => AssistantCore.ApplyOptimalSliders();
         private static void OnGameplayFeatureButtonClick() => AssistantCore.ApplyBestGameplayFeatures();
+        private static void OnAutoAllButtonClick() => AssistantCore.ApplyAutoSettings();
     }
 }

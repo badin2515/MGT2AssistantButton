@@ -37,5 +37,33 @@ namespace MGT2AssistantButton.Core
         public static void ApplyOptimalSliders() => Handlers.SliderHandler.ApplyOptimalSliders(_currentMenu);
         public static void ApplyBestGameplayFeatures() => Handlers.GameplayFeatureHandler.ApplyGameplayFeatures(_currentMenu, GameplayFeatureMode.Best);
         public static void ApplyGameplayFeatureMode(GameplayFeatureMode mode) => Handlers.GameplayFeatureHandler.ApplyGameplayFeatures(_currentMenu, mode);
+
+        public static void ApplyAutoSettings()
+        {
+            if (_currentMenu == null) return;
+
+            // Page 1
+            ApplyBestMainGenre();
+            ApplyBestSubGenre();
+            ApplyBestTargetGroup();
+            ApplyBestMainTheme();
+            ApplyBestSubTheme();
+
+            // Page 2
+            ApplyBestEngine();
+            ApplyBestPlatform();
+
+            // Page 3
+            ApplyBestEngineFeatures();
+            ApplyAntiCheat();
+            ApplyCopyProtect();
+            ApplyBestLanguage();
+
+            // Page 4
+            ApplyOptimalSliders();
+
+            // Page 5
+            ApplyBestGameplayFeatures();
+        }
     }
 }

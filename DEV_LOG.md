@@ -140,3 +140,30 @@ Harmony patch ถูกตั้งเป้าไปที่ class ผิด:
 - Component copying
 - Button creation success/failure
 - Click events
+
+---
+
+## Feature Update: Auto-All Button (Complete ✅)
+
+### วัตถุประสงค์
+เพิ่มปุ่ม "Auto All" ที่หน้าแรกของการสร้างเกม เพื่อให้ผู้เล่นสามารถกดครั้งเดียวแล้วระบบจะเลือกค่าที่เหมาะสมที่สุดสำหรับทุกหน้า (Genre, Engine, Features, Sliders, etc.) โดยไม่ต้องกดทีละหน้า
+
+### Changes Made
+
+#### 1. Core Logic (`Core/AssistantCore.cs`)
+- เพิ่มฟังก์ชัน `ApplyAutoSettings()` ที่เรียกใช้งาน Handler ต่างๆ ตามลำดับ:
+    1.  **Page 1:** Main Genre, Sub Genre, Target Group, Main Theme, Sub Theme
+    2.  **Page 2:** Engine, Platform
+    3.  **Page 3:** Engine Features, Anti-Cheat, Copy Protection, Language
+    4.  **Page 4:** Design Sliders (Gameplay, Graphic, Sound, Control) & Focus/Direction Sliders
+    5.  **Page 5:** Gameplay Features
+
+#### 2. UI Update (`UI/DevGameAssistantUI.cs`)
+- เพิ่มปุ่ม `Auto All` ใน `Page 1` ของเมนูสร้างเกม
+- ใช้สไตล์เดียวกับปุ่ม "Random Name" (มี Text)
+- ตำแหน่ง: `(-80, 193)` (สมมาตรกับปุ่ม Random Name ที่อยู่ขวา)
+- เชื่อมต่อปุ่มกับ `AssistantCore.ApplyAutoSettings()`
+
+### Verification
+- Logic ถูกจัดลำดับความสำคัญถูกต้อง (เช่น Genre ต้องมาก่อน Engine)
+- การตรวจสอบ `Interactable` ใน Handlers ยังคงทำงานอยู่เพื่อให้แน่ใจว่าจะไม่เลือกสิ่งที่ยังไม่ปลดล็อค
