@@ -14,7 +14,7 @@ namespace MGT2AssistantButton.UI
         private static GameObject mainThemeButton;
         private static GameObject subthemeButton;
         private static GameObject randomNameButton;
-        private static GameObject autoAllButton;
+        private static System.Collections.Generic.List<GameObject> autoAllButtons = new System.Collections.Generic.List<GameObject>();
         private static GameObject engineButton;
         private static GameObject platformButton;
         private static GameObject engineFeatureButton;
@@ -63,7 +63,7 @@ namespace MGT2AssistantButton.UI
                 Transform seite2 = FindPage(menu, "Seite2");
                 if (seite2 != null)
                 {
-                    CreatePage2Buttons(descSource, seite2);
+                    CreatePage2Buttons(descSource, randomNameSource, seite2);
                 }
 
                 // Page 3
@@ -77,14 +77,14 @@ namespace MGT2AssistantButton.UI
                 Transform seite4 = FindPage(menu, "Seite4");
                 if (seite4 != null)
                 {
-                    CreatePage4Buttons(descSource, seite4, menu);
+                    CreatePage4Buttons(descSource, randomNameSource, seite4, menu);
                 }
 
                 // Page 5
                 Transform seite5 = FindPage(menu, "Seite5");
                 if (seite5 != null)
                 {
-                    CreatePage5Buttons(descSource, seite5, menu);
+                    CreatePage5Buttons(descSource, randomNameSource, seite5, menu);
                 }
 
                 buttonsCreated = true;
@@ -109,14 +109,22 @@ namespace MGT2AssistantButton.UI
             {
                 ModifyOriginalRandomNameButton(randomNameSource);
                 randomNameButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_RandomName", new Vector2(80f, 193f), "Real Name", OnRandomNameButtonClick);
-                autoAllButton = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+
+                GameObject btn = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll_P1", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+                if (btn != null) autoAllButtons.Add(btn);
             }
         }
 
-        private static void CreatePage2Buttons(GameObject descSource, Transform parent)
+        private static void CreatePage2Buttons(GameObject descSource, GameObject randomNameSource, Transform parent)
         {
             engineButton = CreateDescButton(descSource, parent, "Button_Assist_Engine", new Vector2(240f, 235f), OnEngineButtonClick);
             
+            if (randomNameSource != null)
+            {
+                GameObject btn = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll_P2", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+                if (btn != null) autoAllButtons.Add(btn);
+            }
+
             // Platform button with dropdown - don't set onClick yet
             platformButton = CreateDescButton(descSource, parent, "Button_Assist_Platform", new Vector2(300f, -75f), null);
             
@@ -169,13 +177,16 @@ namespace MGT2AssistantButton.UI
                         });
                     }
                 }
+
+                GameObject btn = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll_P3", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+                if (btn != null) autoAllButtons.Add(btn);
             }
 
             GameObject alleSprachen = FindButtonByName(menu, "Button_AlleSprachen");
             if (alleSprachen != null) ModifyOriginalAlleSprachenButton(alleSprachen);
         }
 
-        private static void CreatePage4Buttons(GameObject descSource, Transform parent, Menu_DevGame menu)
+        private static void CreatePage4Buttons(GameObject descSource, GameObject randomNameSource, Transform parent, Menu_DevGame menu)
         {
             sliderButton = CreateDescButton(descSource, parent, "Button_Assist_Slider", new Vector2(235f, 30f), OnSliderButtonClick);
             
@@ -185,11 +196,17 @@ namespace MGT2AssistantButton.UI
                 sliderButton.GetComponent<RectTransform>().sizeDelta = new Vector2(50f, 50f);
             }
 
+            if (randomNameSource != null)
+            {
+                GameObject btn = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll_P4", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+                if (btn != null) autoAllButtons.Add(btn);
+            }
+
             GameObject autoDesign = FindButtonByName(menu, "Button_AutoDesingSettings");
             if (autoDesign != null) ModifyOriginalAutoDesignSettingsButton(autoDesign);
         }
 
-        private static void CreatePage5Buttons(GameObject descSource, Transform parent, Menu_DevGame menu)
+        private static void CreatePage5Buttons(GameObject descSource, GameObject randomNameSource, Transform parent, Menu_DevGame menu)
         {
             // Gameplay Feature button with dropdown
             gameplayFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_GameplayFeature", new Vector2(0f, -259f), null);
@@ -204,6 +221,12 @@ namespace MGT2AssistantButton.UI
                         MGT2AssistantButton.Core.AssistantCore.ApplyGameplayFeatureMode(mode);
                     });
                 }
+            }
+
+            if (randomNameSource != null)
+            {
+                GameObject btn = CreateRandomNameButton(randomNameSource, parent, "Button_Assist_AutoAll_P5", new Vector2(-80f, 193f), "Auto All", OnAutoAllButtonClick);
+                if (btn != null) autoAllButtons.Add(btn);
             }
         }
 
@@ -303,7 +326,13 @@ namespace MGT2AssistantButton.UI
             if (mainThemeButton) Object.Destroy(mainThemeButton);
             if (subthemeButton) Object.Destroy(subthemeButton);
             if (randomNameButton) Object.Destroy(randomNameButton);
-            if (autoAllButton) Object.Destroy(autoAllButton);
+
+            foreach (var btn in autoAllButtons)
+            {
+                if (btn) Object.Destroy(btn);
+            }
+            autoAllButtons.Clear();
+
             if (engineButton) Object.Destroy(engineButton);
             if (platformButton) Object.Destroy(platformButton);
             if (engineFeatureButton) Object.Destroy(engineFeatureButton);
