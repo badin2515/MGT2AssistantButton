@@ -255,6 +255,14 @@ namespace MGT2AssistantButton.Helpers
             return textComponent;
         }
 
+        public static void SetButtonColor(GameObject button, Color color)
+        {
+            if (button == null) return;
+            Image img = button.GetComponent<Image>();
+            if (img != null) img.color = color;
+        }
+
+
         /// <summary>
         /// แก้ไขข้อความของปุ่มที่มีอยู่แล้ว (รองรับทั้ง Text และ TMPro)
         /// </summary>
