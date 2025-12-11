@@ -88,12 +88,33 @@ namespace MGT2AssistantButton.Core
     }
     
     /// <summary>
+    /// Filter settings for Engine selection - Weighted Score System
+    /// </summary>
+    public class EngineFilterConfig
+    {
+        // Priority weights (เลือกได้หลายตัว)
+        public bool PriorityGenreMatch { get; set; } = true;   // +50 ถ้าตรง genre
+        public bool PriorityOwnEngine { get; set; } = true;    // +30 ถ้าเป็นของเรา
+        public bool PriorityHighTech { get; set; } = true;     // +10 per tech level
+        
+        // Filters
+        public bool OwnOnly { get; set; } = false;             // เฉพาะ engine ของเรา
+        public bool NoRoyalty { get; set; } = false;           // ไม่ต้องจ่าย royalty
+        
+        // Score weights
+        public const int GENRE_MATCH_SCORE = 50;
+        public const int OWN_ENGINE_SCORE = 30;
+        public const int TECH_LEVEL_SCORE = 10;  // per level
+    }
+    
+    /// <summary>
     /// Filter settings for Engine Feature selection
+    /// Auto-match platform tech + Cost strategy
     /// </summary>
     public class EngineFeatureFilterConfig
     {
-        public bool PreferHighTech { get; set; } = true;
-        public bool PreferLowCost { get; set; } = false;
-        public bool PreferHighPoints { get; set; } = false;
+        // Cost Strategy
+        public bool UseBestQuality { get; set; } = true;   // Dev Cost สูง = Quality สูง
+        public bool UseCheapest { get; set; } = false;     // Dev Cost ต่ำสุด
     }
 }

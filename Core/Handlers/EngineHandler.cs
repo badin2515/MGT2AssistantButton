@@ -139,6 +139,14 @@ namespace MGT2AssistantButton.Core.Handlers
                 }
 
                 menu.GetGesamtDevPoints();
+                
+                // Call private CalcDevCosts using reflection to update price display
+                var calcMethod = typeof(Menu_DevGame).GetMethod("CalcDevCosts", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                if (calcMethod != null)
+                {
+                    calcMethod.Invoke(menu, null);
+                }
             }
             catch (System.Exception) { }
         }
@@ -152,6 +160,119 @@ namespace MGT2AssistantButton.Core.Handlers
                 if (platform != null) return platform.tech;
             }
             return 0;
+        }
+        
+        /// <summary>
+        /// เลือก Engine ตาม Weighted Score System
+        /// </summary>
+        public static void ApplyFilteredEngine(Menu_DevGame menu, EngineFilterConfig config)
+        {
+            if (menu == null || config == null) return;
+            
+            try
+            {
+                if (menu.uiObjects != null && menu.uiObjects.Length > 126)
+                {
+                    Button engineButton = menu.uiObjects[126]?.GetComponent<Button>();
+                    if (engineButton != null && !engineButton.interactable) return;
+                }
+                
+                GameObject mainObj = GameObject.Find("Main");
+                if (mainObj == null) return;
+                
+                mainScript mS = mainObj.GetComponent<mainScript>();
+                if (mS == null) return;
+                
+                int selectedGenre = menu.g_GameMainGenre;
+                GameObject[] engineObjects = GameObject.FindGameObjectsWithTag("Engine");
+                
+                engineScript bestEngine = null;
+                int bestScore = int.MinValue;
+                
+                foreach (GameObject engineObj in engineObjects)
+                {
+                    if (engineObj == null) continue;
+                    engineScript engine = engineObj.GetComponent<engineScript>();
+                    if (engine == null) continue;
+                    
+                    // Check availability
+                    bool isAvailable = (engine.isUnlocked && engine.gekauft) ||
+                                       (engine.ownerID == mS.myID && engine.devPointsStart <= 0.0f) ||
+                                       (engine.ownerID == mS.myID && engine.updating);
+                    
+                    if (!isAvailable || engine.archiv_engine)
+                    {
+                        Plugin.Logger.LogInfo($"SKIP: {engine.GetName()} | Available: {isAvailable} | Archived: {engine.archiv_engine} | devPointsStart: {engine.devPointsStart}");
+                        continue;
+                    }
+                    
+                    bool isOwn = (engine.ownerID == mS.myID);
+                    // Own engine = no royalty (we don't pay ourselves!)
+                    bool hasRoyalty = !isOwn && engine.sellEngine && engine.gewinnbeteiligung > 0;
+                    
+                    // Apply filters
+                    if (config.OwnOnly && !isOwn)
+                    {
+                        Plugin.Logger.LogInfo($"FILTER OwnOnly: {engine.GetName()} | isOwn: {isOwn}");
+                        continue;
+                    }
+                    if (config.NoRoyalty && hasRoyalty)
+                    {
+                        Plugin.Logger.LogInfo($"FILTER NoRoyalty: {engine.GetName()} | hasRoyalty: {hasRoyalty}");
+                        continue;
+                    }
+                    
+                    // Calculate score
+                    int score = 0;
+                    
+                    // Check if any priority is selected
+                    bool anyPrioritySelected = config.PriorityGenreMatch || config.PriorityOwnEngine || config.PriorityHighTech;
+                    
+                    if (config.PriorityGenreMatch && selectedGenre >= 0 && engine.spezialgenre == selectedGenre)
+                        score += EngineFilterConfig.GENRE_MATCH_SCORE;
+                    
+                    if (config.PriorityOwnEngine && isOwn)
+                        score += EngineFilterConfig.OWN_ENGINE_SCORE;
+                    
+                    // If High Tech priority OR no priority selected, use tech level
+                    if (config.PriorityHighTech || !anyPrioritySelected)
+                        score += engine.GetTechLevel() * EngineFilterConfig.TECH_LEVEL_SCORE;
+                    
+                    // Log each engine for debugging
+                    Plugin.Logger.LogInfo($"Engine: {engine.GetName()} | Tech: {engine.GetTechLevel()} | Own: {isOwn} | Score: {score}");
+                    
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        bestEngine = engine;
+                    }
+                }
+                
+                Plugin.Logger.LogInfo($"Config: GenreMatch={config.PriorityGenreMatch}, Own={config.PriorityOwnEngine}, HighTech={config.PriorityHighTech}");
+                
+                if (bestEngine != null)
+                {
+                    menu.SetEngine(bestEngine.myID);
+                    Plugin.Logger.LogInfo($">>> Selected: {bestEngine.GetName()} (Score: {bestScore})");
+                }
+            }
+            catch (System.Exception ex) 
+            { 
+                Plugin.Logger.LogError($"ApplyFilteredEngine error: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// เลือก Engine Features ตาม config
+        /// Auto-match platform tech + Cost strategy
+        /// </summary>
+        public static void ApplyFilteredEngineFeatures(Menu_DevGame menu, EngineFeatureFilterConfig config)
+        {
+            if (menu == null || menu.g_GameEngineScript_ == null || config == null) return;
+            
+            // Use Best or Cheapest based on config
+            EngineFeatureMode mode = config.UseBestQuality ? EngineFeatureMode.Best : EngineFeatureMode.Cheapest;
+            ApplyEngineFeatures(menu, mode);
         }
     }
 }

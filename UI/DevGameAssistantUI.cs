@@ -191,16 +191,18 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage2Buttons(GameObject descSource, Transform parent)
         {
-            // Engine button with dropdown
+            // Engine button with MULTI-SELECT dropdown
             engineButton = CreateDescButton(descSource, parent, "Button_Assist_Engine", new Vector2(240f, 235f), null);
-            ButtonHelper.SetTooltip(engineButton, "Auto-select Best Engine (Right-click for options)");
+            ButtonHelper.SetTooltip(engineButton, "Auto-select Engine (Right-click for filter options)");
             if (engineButton != null)
             {
                 var button = engineButton.GetComponent<Button>();
                 if (button != null)
                 {
-                    ButtonHelper.AddDropdown(button, new System.Collections.Generic.List<DropdownItem> {
-                        new DropdownItem("Best Engine", () => AssistantCore.ApplyBestEngine())
+                    // Use new multi-select filter dropdown
+                    var filterDropdown = engineButton.AddComponent<EngineFilterDropdown>();
+                    filterDropdown.Setup(button, (config) => {
+                        MGT2AssistantButton.Core.Handlers.EngineHandler.ApplyFilteredEngine(AssistantCore.GetMenu(), config);
                     });
                 }
             }
@@ -224,18 +226,19 @@ namespace MGT2AssistantButton.UI
 
         private static void CreatePage3Buttons(GameObject descSource, GameObject randomNameSource, Transform parent, Menu_DevGame menu)
         {
-            // Engine Feature button with dropdown - don't set onClick directly
+            // Engine Feature button with MULTI-SELECT dropdown
             engineFeatureButton = CreateDescButton(descSource, parent, "Button_Assist_EngineFeature", new Vector2(300f, 133f), null);
             ButtonHelper.SetTooltip(engineFeatureButton, "Auto-select Engine Features (Right-click for options)");
             
-            // Add dropdown menu to engine feature button
             if (engineFeatureButton != null)
             {
                 var button = engineFeatureButton.GetComponent<Button>();
                 if (button != null)
                 {
-                    EngineFeatureDropdownMenu.Create(button, (mode) => {
-                        MGT2AssistantButton.Core.AssistantCore.ApplyEngineFeatureMode(mode);
+                    // Use new multi-select filter dropdown
+                    var filterDropdown = engineFeatureButton.AddComponent<EngineFeatureFilterDropdown>();
+                    filterDropdown.Setup(button, (config) => {
+                        MGT2AssistantButton.Core.Handlers.EngineHandler.ApplyFilteredEngineFeatures(AssistantCore.GetMenu(), config);
                     });
                 }
             }

@@ -14,16 +14,17 @@ namespace MGT2AssistantButton.UI
         protected GameObject menuPanel;
         protected Button triggerButton;
         protected List<FilterItem> filterItems = new List<FilterItem>();
-        protected Action onApply;
+        private Action onApply;
+        private bool isUpdatingProgrammatically = false;
         
         protected class FilterItem
         {
-            public string Label;
-            public string Key;
-            public bool IsSelected;
-            public bool IsHeader;
-            public GameObject UIElement;
-            public Toggle Toggle;
+            public string Label { get; set; }
+            public string Key { get; set; }
+            public bool IsSelected { get; set; }
+            public bool IsHeader { get; set; }
+            public GameObject UIElement { get; set; }
+            public Toggle Toggle { get; set; }
             
             public FilterItem(string label, string key, bool isSelected = false, bool isHeader = false)
             {
@@ -40,6 +41,28 @@ namespace MGT2AssistantButton.UI
         protected abstract void OnApplyFilters();
         
         protected virtual bool DropdownOnLeft => true;
+        
+        /// <summary>
+        /// Called when a filter item is clicked (for radio button behavior)
+        /// </summary>
+        protected virtual void OnFilterItemClicked(string key) { }
+        
+        /// <summary>
+        /// Set filter value and update UI
+        /// </summary>
+        protected void SetFilterValue(string key, bool value)
+        {
+            isUpdatingProgrammatically = true;
+            
+            var item = filterItems.Find(f => f.Key == key);
+            if (item != null)
+            {
+                item.IsSelected = value;
+                if (item.Toggle != null) item.Toggle.isOn = value;
+            }
+            
+            isUpdatingProgrammatically = false;
+        }
         
         protected void Initialize(Button button, Action applyCallback)
         {
@@ -223,6 +246,13 @@ namespace MGT2AssistantButton.UI
                 // Update item state on toggle
                 string key = item.Key;
                 toggle.onValueChanged.AddListener((isOn) => {
+                    // Only process user clicks, not programmatic changes
+                    if (!isUpdatingProgrammatically)
+                    {
+                        // ให้ subclass จัดการ radio behavior ก่อน
+                        OnFilterItemClicked(key);
+                    }
+                    
                     var fi = filterItems.Find(f => f.Key == key);
                     if (fi != null) fi.IsSelected = isOn;
                 });
@@ -280,15 +310,6 @@ namespace MGT2AssistantButton.UI
             return item?.IsSelected ?? false;
         }
         
-        protected void SetFilterValue(string key, bool value)
-        {
-            var item = filterItems.Find(f => f.Key == key);
-            if (item != null)
-            {
-                item.IsSelected = value;
-                if (item.Toggle != null) item.Toggle.isOn = value;
-            }
-        }
         
         protected void ToggleMenu()
         {
