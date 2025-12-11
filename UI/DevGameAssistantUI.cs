@@ -205,16 +205,18 @@ namespace MGT2AssistantButton.UI
                 }
             }
             
-            // Platform button with dropdown
+            // Platform button with MULTI-SELECT dropdown
             platformButton = CreateDescButton(descSource, parent, "Button_Assist_Platform", new Vector2(300f, -75f), null);
-            ButtonHelper.SetTooltip(platformButton, "Auto-select Platform (Right-click for options)");
+            ButtonHelper.SetTooltip(platformButton, "Auto-select Platform (Right-click for filter options)");
             if (platformButton != null)
             {
                 var button = platformButton.GetComponent<Button>();
                 if (button != null)
                 {
-                    PlatformDropdownMenu.Create(button, (mode) => {
-                        MGT2AssistantButton.Core.Handlers.PlatformHandler.ApplyPlatformMode(AssistantCore.GetMenu(), mode);
+                    // Use new multi-select filter dropdown
+                    var filterDropdown = platformButton.AddComponent<PlatformFilterDropdown>();
+                    filterDropdown.Setup(button, (config) => {
+                        MGT2AssistantButton.Core.Handlers.PlatformHandler.ApplyFilteredPlatform(AssistantCore.GetMenu(), config);
                     });
                 }
             }

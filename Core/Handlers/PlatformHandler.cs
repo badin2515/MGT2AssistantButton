@@ -191,5 +191,111 @@ namespace MGT2AssistantButton.Core.Handlers
             for (int i = 0; i < count; i++)
                 menu.SetPlatform(availableSlots[i], maxTechPlatforms[i].id);
         }
+        
+        /// <summary>
+        /// เลือก Platform ตาม filter config ที่ user กำหนด
+        /// ทำงานภายในขอบเขตที่เกมอนุญาต (unlock + DevKit + game mode filter)
+        /// </summary>
+        public static void ApplyFilteredPlatform(Menu_DevGame menu, PlatformFilterConfig config)
+        {
+            if (menu == null || config == null) return;
+            
+            ClearPlatforms(menu);
+            var availableSlots = GetAvailableSlots(menu);
+            if (availableSlots.Count == 0) return;
+            
+            int pType = GetPlatformType(menu);
+            
+            // Get mainScript for owner check
+            GameObject mainObj = GameObject.Find("Main");
+            mainScript mS = mainObj?.GetComponent<mainScript>();
+            
+            // Step 1: ดึงเฉพาะ platform ที่เกม "allow" ให้เลือกได้
+            var allowedPlatforms = Object.FindObjectsOfType<platformScript>()
+                .Where(pS => IsPlatformValid(pS) && MatchesGameModeFilter(pS, pType));
+            
+            // Step 2: กรองตาม type filter
+            if (config.HasAnyTypeFilter())
+            {
+                allowedPlatforms = allowedPlatforms.Where(pS => config.MatchesType(pS.typ));
+            }
+            
+            // Step 3: กรองตาม tech level
+            if (config.HasAnyTechLevelFilter())
+            {
+                allowedPlatforms = allowedPlatforms.Where(pS => config.MatchesTechLevel(pS.tech));
+            }
+            
+            // Step 4: กรองตาม Internet requirement
+            if (config.RequireInternet)
+            {
+                allowedPlatforms = allowedPlatforms.Where(pS => pS.internet);
+            }
+            
+            // Step 5: กรองเฉพาะ Own Platform
+            if (config.OwnPlatformOnly && mS != null)
+            {
+                allowedPlatforms = allowedPlatforms.Where(pS => pS.ownerID == mS.myID);
+            }
+            
+            // Step 6: คำนวณ score ตาม preferences และ sort
+            var scoredPlatforms = allowedPlatforms
+                .Select(pS => new PlatformData { 
+                    platform = pS, 
+                    id = pS.myID, 
+                    score = CalculateScore(pS, config)
+                })
+                .OrderByDescending(x => x.score)
+                .ToList();
+            
+            if (scoredPlatforms.Count == 0)
+            {
+                Plugin.Logger.LogWarning("No platforms matched the filter criteria!");
+                return;
+            }
+            
+            // Step 7: เลือก platforms ตามจำนวน slot ที่มี
+            int count = Mathf.Min(availableSlots.Count, scoredPlatforms.Count);
+            for (int i = 0; i < count; i++)
+            {
+                menu.SetPlatform(availableSlots[i], scoredPlatforms[i].id);
+            }
+            
+            Plugin.Logger.LogInfo($"Selected {count} platform(s) using filter config");
+        }
+        
+        /// <summary>
+        /// คำนวณ score สำหรับ platform ตาม preferences
+        /// </summary>
+        private static float CalculateScore(platformScript pS, PlatformFilterConfig config)
+        {
+            float score = 0f;
+            
+            // Market Share preference
+            if (config.PreferHighMarketShare)
+            {
+                score += pS.GetMarktanteil() * 10f;
+            }
+            
+            // Experience preference
+            if (config.PreferHighExperience)
+            {
+                score += pS.erfahrung * 5f;
+            }
+            
+            // Tech level preference
+            if (config.PreferHighTech)
+            {
+                score += pS.tech * 100f;
+            }
+            
+            // ถ้าไม่เลือก preference ใดเลย ใช้ market share เป็น default
+            if (!config.PreferHighMarketShare && !config.PreferHighExperience && !config.PreferHighTech)
+            {
+                score = pS.GetMarktanteil();
+            }
+            
+            return score;
+        }
     }
 }
