@@ -7,18 +7,6 @@ namespace MGT2AssistantButton.Core.Handlers
 {
     public static class PlatformHandler
     {
-        public static void ApplyPlatformMode(Menu_DevGame menu, PlatformMode mode)
-        {
-            switch (mode)
-            {
-                case PlatformMode.ByMarket: ApplyByMarket(menu); break;
-                case PlatformMode.ConsoleOnly: ApplyConsoleOnly(menu); break;
-                case PlatformMode.PCOnly: ApplyPCOnly(menu); break;
-                case PlatformMode.OurConsoleFirst: ApplyOurConsoleFirst(menu); break;
-                case PlatformMode.HighestTechOnly: ApplyHighestTechOnly(menu); break;
-            }
-        }
-
         public static void ApplyBestPlatform(Menu_DevGame menu) => ApplyByMarket(menu);
 
         private static bool IsPlatformValid(platformScript pS) =>

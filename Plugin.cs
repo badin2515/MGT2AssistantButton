@@ -23,16 +23,6 @@ namespace MGT2AssistantButton
             Logger.LogInfo($"Harmony patches applied successfully!");
         }
 
-        private void Update()
-        {
-            // Press F9 to log all genre IDs
-            if (Input.GetKeyDown(KeyCode.F9))
-            {
-                Logger.LogInfo("F9 pressed - Logging all genre IDs...");
-                Helpers.GenreDebugHelper.LogAllGenreNames();
-            }
-        }
-
         private void OnDestroy()
         {
             _harmony?.UnpatchSelf();

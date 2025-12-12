@@ -543,47 +543,5 @@ namespace MGT2AssistantButton.UI
                 rect.anchoredPosition = new Vector2(490f, -328.4f);
             }
         }
-
-        private static void ModifyOriginalAlleGameplayFeaturesButton(GameObject originalButton)
-        {
-            RectTransform rect = originalButton.GetComponent<RectTransform>();
-            if (rect != null)
-            {
-                rect.anchoredPosition = new Vector2(-220f, -618.8f);
-                rect.sizeDelta = new Vector2(200f, 23.25f);
-            }
-            ButtonHelper.SetButtonText(originalButton, "All Features");
-        }
-
-        private static void ModifyOriginalAllePassendenGameplayFeaturesButton(GameObject originalButton)
-        {
-            RectTransform rect = originalButton.GetComponent<RectTransform>();
-            if (rect != null)
-            {
-                rect.anchoredPosition = new Vector2(220f, -618.8f);
-                rect.sizeDelta = new Vector2(200f, 23.25f);
-            }
-            ButtonHelper.SetButtonText(originalButton, "Good Features");
-        }
-
-        // --- Event Handlers ---
-
-        // --- Event Handlers ---
-
-        // Event Handlers
-        private static void OnTargetGroupButtonClick() => AssistantCore.ApplyBestTargetGroup();
-        private static void OnMainGenreButtonClick() => AssistantCore.ApplyBestMainGenre();
-        private static void OnSubgenreButtonClick() => AssistantCore.ApplyBestSubGenre();
-        private static void OnMainThemeButtonClick() => AssistantCore.ApplyBestMainTheme();
-        private static void OnSubthemeButtonClick() => AssistantCore.ApplyBestSubTheme();
-        private static void OnRandomNameButtonClick() => AssistantCore.ApplyRealName();
-        private static void OnEngineButtonClick() => AssistantCore.ApplyBestEngine();
-        private static void OnPlatformButtonClick() => AssistantCore.ApplyBestPlatform();
-        private static void OnEngineFeatureButtonClick() => AssistantCore.ApplyBestEngineFeatures();
-        private static void OnAntiCheatButtonClick() => AssistantCore.ApplyAntiCheat();
-        private static void OnCopyProtectButtonClick() => AssistantCore.ApplyCopyProtect();
-        private static void OnLanguageButtonClick() => AssistantCore.ApplyBestLanguage();
-        private static void OnSliderButtonClick() => AssistantCore.ApplyOptimalSliders();
-        private static void OnGameplayFeatureButtonClick() => AssistantCore.ApplyBestGameplayFeatures();
     }
 }

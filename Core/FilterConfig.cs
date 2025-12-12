@@ -79,15 +79,6 @@ namespace MGT2AssistantButton.Core
     }
     
     /// <summary>
-    /// Filter settings for Genre selection
-    /// </summary>
-    public class GenreFilterConfig
-    {
-        public bool PreferHighLevel { get; set; } = true;
-        public bool PreferPopular { get; set; } = false;
-    }
-    
-    /// <summary>
     /// Filter settings for Engine selection - Weighted Score System
     /// </summary>
     public class EngineFilterConfig
